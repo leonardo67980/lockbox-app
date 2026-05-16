@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1117">
+    <title>Lockbox Password</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="auth-view" id="authView" aria-labelledby="authTitle">
+        <div class="auth-copy">
+          <div class="brand-row">
+            <div class="brand-mark" aria-hidden="true"><span></span></div>
+            <div>
+              <p class="eyebrow">Vault cifrato</p>
+              <h1 id="authTitle">Lockbox Password</h1>
+            </div>
+          </div>
+          <p class="intro">Gestisci piu account separati, ognuno con il proprio vault cifrato. Funziona da desktop e telefono come app installabile.</p>
+          <div class="trust-strip" aria-label="Funzioni principali">
+            <span>Cifratura locale</span>
+            <span>Backup protetto</span>
+            <span>Multi account</span>
+          </div>
+        </div>
+
+        <form class="auth-card" id="authForm">
+          <div class="card-heading">
+            <p class="eyebrow">Accesso</p>
+            <h2>Apri un account</h2>
+          </div>
+          <label>
+            <span>Nome account</span>
+            <input id="accountName" list="accountList" autocomplete="username" required>
+            <datalist id="accountList"></datalist>
+          </label>
+          <label>
+            <span>Master password</span>
+            <input id="masterPassword" type="password" autocomplete="current-password" minlength="10" required>
+          </label>
+          <div class="auth-actions">
+            <button class="primary-action" type="submit" id="unlockButton">Sblocca</button>
+            <button class="secondary-action" type="button" id="createVaultButton">Crea account</button>
+          </div>
+          <button class="secondary-action auth-sync-button" type="button" id="authSyncButton">Sync GitHub</button>
+          <label class="text-button file-button auth-import-button">
+            Importa backup
+            <input id="authImportInput" type="file">
+          </label>
+          <p class="form-note" id="authHint">Inserisci un account esistente oppure crea un nuovo vault con una master password lunga.</p>
+          <div class="account-pills" id="accountPills" aria-label="Account salvati"></div>
+        </form>
+      </section>
+
+      <section class="vault-view hidden" id="vaultView" aria-labelledby="vaultTitle">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="currentAccountLabel">Account</p>
+            <h1 id="vaultTitle">Il tuo vault</h1>
+          </div>
+          <div class="top-actions">
+            <button class="secondary-action compact" id="changeAccountButton" type="button">Cambia account</button>
+            <button class="icon-button" id="lockButton" type="button" title="Blocca vault" aria-label="Blocca vault">L</button>
+          </div>
+        </header>
+
+        <section class="stats-grid" aria-label="Riepilogo vault">
+          <div class="stat-card">
+            <span id="totalCount">0</span>
+            <p>Password</p>
+          </div>
+          <div class="stat-card warn">
+            <span id="weakCount">0</span>
+            <p>Da migliorare</p>
+          </div>
+          <div class="stat-card accent">
+            <span id="favoriteCount">0</span>
+            <p>Preferite</p>
+          </div>
+        </section>
+
+        <div class="toolbar">
+          <label class="search-box">
+            <span class="sr-only">Cerca</span>
+            <input id="searchInput" type="search" placeholder="Cerca sito, username, categoria o note">
+          </label>
+          <button class="primary-action compact" id="addEntryButton" type="button">Nuova</button>
+        </div>
+
+        <div class="filter-row" aria-label="Filtri">
+          <button class="filter-chip active" data-filter="all" type="button">Tutte</button>
+          <button class="filter-chip" data-filter="favorites" type="button">Preferite</button>
+          <button class="filter-chip" data-filter="weak" type="button">Deboli</button>
+          <button class="filter-chip" data-filter="recent" type="button">Recenti</button>
+        </div>
+
+        <div class="content-grid">
+          <section class="list-panel" aria-label="Elenco password">
+            <div class="list-meta">
+              <span id="entryCount">0 elementi</span>
+              <button class="text-button" id="sortButton" type="button">A-Z</button>
+            </div>
+            <div class="entry-list" id="entryList"></div>
+          </section>
+
+          <aside class="detail-panel" id="detailPanel" aria-label="Dettaglio password">
+            <div class="empty-state" id="emptyState">
+              <h2>Seleziona una password</h2>
+              <p>Apri un elemento per copiarlo, modificarlo o controllarne la sicurezza.</p>
+            </div>
+
+            <article class="detail-card hidden" id="detailCard">
+              <div class="detail-heading">
+                <div>
+                  <p class="eyebrow" id="detailUsername"></p>
+                  <h2 id="detailTitle"></h2>
+                  <span class="category-badge" id="detailCategory"></span>
+                </div>
+                <div class="detail-actions">
+                  <button class="icon-button" id="favoriteButton" type="button" title="Preferita" aria-label="Preferita">*</button>
+                  <button class="icon-button danger" id="deleteEntryButton" type="button" title="Elimina" aria-label="Elimina">X</button>
+                </div>
+              </div>
+
+              <div class="strength-card" id="strengthCard">
+                <div>
+                  <span id="strengthLabel">Sicurezza</span>
+                  <p id="strengthHint">Controllo password</p>
+                </div>
+                <div class="strength-meter"><span id="strengthBar"></span></div>
+              </div>
+
+              <dl class="secret-fields">
+                <div>
+                  <dt>Username</dt>
+                  <dd><span id="usernameValue"></span><button data-copy="username" type="button">Copia</button></dd>
+                </div>
+                <div>
+                  <dt>Password</dt>
+                  <dd><span id="passwordValue" class="masked"></span><button id="revealButton" type="button">Mostra</button><button data-copy="password" type="button">Copia</button></dd>
+                </div>
+                <div>
+                  <dt>URL/Sito</dt>
+                  <dd><a id="urlValue" target="_blank" rel="noreferrer"></a><button data-copy="url" type="button">Copia</button></dd>
+                </div>
+                <div>
+                  <dt>Note</dt>
+                  <dd><span id="notesValue"></span></dd>
+                </div>
+              </dl>
+
+              <div class="button-row">
+                <button class="secondary-action" id="editEntryButton" type="button">Modifica</button>
+                <button class="secondary-action" id="generateButton" type="button">Genera e copia</button>
+              </div>
+            </article>
+          </aside>
+        </div>
+
+        <footer class="vault-footer">
+          <div class="footer-actions">
+            <button class="text-button" id="exportButton" type="button">Esporta backup</button>
+            <label class="text-button file-button">
+              Importa backup
+              <input id="importInput" type="file">
+            </label>
+            <button class="text-button" id="syncButton" type="button">Sync GitHub</button>
+            <button class="text-button danger-text" id="deleteAccountButton" type="button">Elimina account</button>
+          </div>
+          <label class="timeout-control">
+            Timeout
+            <select id="timeoutSelect">
+              <option value="300000">5 min</option>
+              <option value="900000" selected>15 min</option>
+              <option value="1800000">30 min</option>
+              <option value="3600000">1 ora</option>
+            </select>
+          </label>
+        </footer>
+      </section>
+    </main>
+
+    <dialog id="entryDialog">
+      <form method="dialog" class="dialog-card" id="entryForm">
+        <header>
+          <div>
+            <p class="eyebrow">Password</p>
+            <h2 id="dialogTitle">Nuova password</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Chiudi" type="submit">X</button>
+        </header>
+        <label>
+          <span>Titolo</span>
+          <input id="entryTitle" required autocomplete="off">
+        </label>
+        <label>
+          <span>Categoria</span>
+          <select id="entryCategory">
+            <option>Personale</option>
+            <option>Lavoro</option>
+            <option>Finanza</option>
+            <option>Social</option>
+            <option>Shopping</option>
+            <option>Casa</option>
+          </select>
+        </label>
+        <label>
+          <span>Username</span>
+          <input id="entryUsername" autocomplete="username">
+        </label>
+        <label>
+          <span>Password</span>
+          <div class="inline-field">
+            <input id="entryPassword" type="text" autocomplete="new-password">
+            <button id="dialogGenerateButton" type="button">Genera</button>
+          </div>
+        </label>
+        <label>
+          <span>URL/Sito</span>
+          <input id="entryUrl" type="url" placeholder="https://">
+        </label>
+        <label>
+          <span>Note</span>
+          <textarea id="entryNotes" rows="4"></textarea>
+        </label>
+        <label class="check-row">
+          <input id="entryFavorite" type="checkbox">
+          <span>Segna come preferita</span>
+        </label>
+        <menu>
+          <button class="secondary-action" value="cancel" formnovalidate>Annulla</button>
+          <button class="primary-action" id="saveEntryButton" value="default">Salva</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="generatorDialog">
+      <form method="dialog" class="dialog-card generator-card" id="generatorForm">
+        <header>
+          <div>
+            <p class="eyebrow">Strumento</p>
+            <h2>Generatore password</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Chiudi" type="submit">X</button>
+        </header>
+        <label>
+          <span>Lunghezza</span>
+          <input id="generatorLength" type="number" min="8" max="64" value="16">
+        </label>
+        <div class="generator-options" aria-label="Opzioni generatore">
+          <label class="check-row">
+            <input id="generatorUppercase" type="checkbox" checked>
+            <span>Maiuscole</span>
+          </label>
+          <label class="check-row">
+            <input id="generatorLowercase" type="checkbox" checked>
+            <span>Minuscole</span>
+          </label>
+          <label class="check-row">
+            <input id="generatorNumbers" type="checkbox" checked>
+            <span>Numeri</span>
+          </label>
+          <label class="check-row">
+            <input id="generatorSymbols" type="checkbox" checked>
+            <span>Simboli</span>
+          </label>
+        </div>
+        <label>
+          <span>Password generata</span>
+          <div class="inline-field">
+            <input id="generatedPassword" type="text" readonly>
+            <button id="copyGeneratedButton" type="button">Copia</button>
+          </div>
+        </label>
+        <menu>
+          <button class="secondary-action" id="generateOnlyButton" type="button">Genera</button>
+          <button class="primary-action" id="useGeneratedButton" value="default">Usa password</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="syncDialog">
+      <form method="dialog" class="dialog-card sync-card" id="syncForm">
+        <header>
+          <div>
+            <p class="eyebrow">Sincronizzazione</p>
+            <h2>GitHub privato</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Chiudi" type="submit">X</button>
+        </header>
+        <label>
+          <span>Owner GitHub</span>
+          <input id="syncOwner" autocomplete="off" placeholder="es. leonardo90">
+        </label>
+        <label>
+          <span>Repository privato</span>
+          <input id="syncRepo" autocomplete="off" placeholder="es. lockbox-vault">
+        </label>
+        <label>
+          <span>Branch</span>
+          <input id="syncBranch" autocomplete="off" value="main">
+        </label>
+        <label>
+          <span>File vault</span>
+          <input id="syncPath" autocomplete="off" value="vaults/{account}.lockbox.json">
+        </label>
+        <label>
+          <span>Token GitHub</span>
+          <input id="syncToken" type="password" autocomplete="off" placeholder="Fine-grained token con accesso al repo">
+        </label>
+        <p class="form-note" id="syncHint">Il token resta salvato solo su questo dispositivo. GitHub riceve solo il vault cifrato.</p>
+        <menu class="sync-actions">
+          <button class="secondary-action" id="saveSyncSettingsButton" type="button">Salva</button>
+          <button class="secondary-action" id="downloadSyncButton" type="button">Scarica</button>
+          <button class="primary-action" id="uploadSyncButton" type="button">Carica</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
