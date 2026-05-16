@@ -1,4 +1,4 @@
-const CACHE_NAME = "lockbox-password-v9";
+const CACHE_NAME = "lockbox-password-v10";
 const ASSETS = [
   "./",
   "./index.html",

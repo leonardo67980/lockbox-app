@@ -689,7 +689,8 @@ $("masterForm").addEventListener("submit", async (event) => {
     await decryptVault(account.record, currentPassword);
     await persistVaultWithNewMaster(newPassword);
     masterDialog.close();
-    showToast("Master password aggiornata. Ricordati di sincronizzare su GitHub.");
+    showToast("Master password aggiornata. Ora carica il vault su GitHub.");
+    openSyncDialog("vault");
   } catch {
     $("masterHint").textContent = "Master password attuale non valida.";
   }
@@ -831,22 +832,39 @@ async function githubContentRequest(settings, path, options = {}) {
   validateSyncSettings(settings);
   const encodedPath = path.split("/").map((part) => encodeURIComponent(part)).join("/");
   const url = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/${encodedPath}`;
+  const { query, headers: customHeaders, ...requestOptions } = options;
   const headers = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${settings.token}`,
     "X-GitHub-Api-Version": "2022-11-28",
-    ...options.headers
+    ...customHeaders
   };
-  const response = await fetch(options.query ? `${url}?${options.query}` : url, {
-    ...options,
+  if (requestOptions.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
+  const response = await fetch(query ? `${url}?${query}` : url, {
+    ...requestOptions,
     headers
   });
   if (response.status === 404) return null;
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `GitHub error ${response.status}`);
+    throw new Error(await formatGithubError(response));
   }
   return response.json();
+}
+
+async function formatGithubError(response) {
+  const fallback = `GitHub error ${response.status}`;
+  try {
+    const data = await response.json();
+    const detail = Array.isArray(data.errors)
+      ? data.errors.map((item) => item.message || item.code || JSON.stringify(item)).filter(Boolean).join(" ")
+      : "";
+    return [data.message, detail].filter(Boolean).join(" - ") || fallback;
+  } catch {
+    const text = await response.text();
+    return text || fallback;
+  }
 }
 
 function decodeGithubContent(content) {
@@ -953,7 +971,7 @@ async function runSyncAction(action) {
   } catch (error) {
     $("syncHint").textContent = error.message.includes("Bad credentials")
       ? "Token GitHub non valido o senza permessi sul repository."
-      : "Errore sync GitHub. Controlla repo, branch, percorso e token.";
+      : `Errore sync GitHub: ${error.message}`;
   }
 }
 
