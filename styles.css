@@ -838,27 +838,67 @@ menu .primary-action {
 }
 
 @media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
   .app-shell {
-    padding: 16px;
+    padding: 10px;
+  }
+
+  .auth-view {
+    gap: 18px;
+    align-content: start;
+    padding-top: 12px;
+  }
+
+  .auth-copy {
+    max-width: 100%;
   }
 
   .brand-row {
-    align-items: flex-start;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
   }
 
   .brand-mark {
-    width: 58px;
-    height: 58px;
-    border-radius: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
   }
 
   .brand-mark span {
-    width: 25px;
-    height: 31px;
+    width: 22px;
+    height: 28px;
+    border-width: 3px;
+  }
+
+  .brand-mark span::before {
+    top: -15px;
+    width: 15px;
+    height: 11px;
+    border-width: 3px;
   }
 
   .auth-view h1 {
-    font-size: 2.55rem;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .intro {
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+
+  .trust-strip {
+    gap: 7px;
+    margin-top: 14px;
+  }
+
+  .trust-strip span {
+    padding: 8px 10px;
+    font-size: 0.84rem;
   }
 
   .auth-card,
@@ -867,26 +907,119 @@ menu .primary-action {
   }
 
   .auth-actions,
-  .stats-grid {
+  .auth-card .auth-actions {
     grid-template-columns: 1fr;
   }
 
   .topbar {
-    align-items: flex-start;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
   }
 
   .top-actions {
-    flex-direction: column-reverse;
+    flex-direction: row;
     align-items: flex-end;
+    gap: 8px;
+  }
+
+  .top-actions .secondary-action {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 0.76rem;
+  }
+
+  .icon-button {
+    width: 36px;
+    height: 36px;
   }
 
   .topbar h1 {
-    font-size: 2.2rem;
+    font-size: 1.42rem;
+  }
+
+  .eyebrow {
+    font-size: 0.68rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+
+  .stat-card {
+    min-height: 58px;
+    padding: 9px;
+  }
+
+  .stat-card span {
+    font-size: 1.18rem;
+    margin-bottom: 2px;
+  }
+
+  .stat-card p {
+    font-size: 0.75rem;
+    line-height: 1.1;
   }
 
   .toolbar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  input,
+  textarea,
+  select {
+    min-height: 38px;
+    padding: 9px 10px;
+  }
+
+  .primary-action,
+  .secondary-action {
+    min-height: 40px;
+  }
+
+  .filter-row {
+    gap: 7px;
+    padding-bottom: 10px;
+  }
+
+  .filter-chip {
+    min-height: 31px;
+    padding: 0 10px;
+    font-size: 0.8rem;
+  }
+
+  .list-panel,
+  .detail-panel {
+    padding: 12px;
+  }
+
+  .entry-list {
+    max-height: none;
+  }
+
+  .entry-item {
+    grid-template-columns: 36px minmax(0, 1fr);
+    min-height: 62px;
+    padding: 9px;
+  }
+
+  .entry-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .entry-title {
+    font-size: 0.98rem;
+  }
+
+  .entry-subtitle,
+  .entry-url {
+    font-size: 0.82rem;
   }
 
   .entry-footer,
@@ -900,11 +1033,36 @@ menu .primary-action {
   }
 
   .detail-card h2 {
-    font-size: 1.75rem;
+    font-size: 1.28rem;
+  }
+
+  .category-badge {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .strength-card {
+    padding: 12px;
+  }
+
+  .secret-fields {
+    gap: 10px;
+  }
+
+  .secret-fields dd button,
+  .button-row .secondary-action {
+    width: 100%;
+  }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .vault-footer {
     grid-template-columns: 1fr;
+    margin-top: 12px;
   }
 
   .footer-actions,
@@ -915,6 +1073,7 @@ menu .primary-action {
   .footer-actions {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .timeout-control {
@@ -928,5 +1087,42 @@ menu .primary-action {
 
   .generator-options {
     grid-template-columns: 1fr;
+  }
+
+  .sync-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .top-actions .secondary-action {
+    max-width: 118px;
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar .primary-action {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-card p {
+    font-size: 0.68rem;
+  }
+
+  .footer-actions .text-button {
+    height: 44px;
   }
 }
