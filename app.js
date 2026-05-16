@@ -38,6 +38,7 @@ const emptyState = $("emptyState");
 const entryDialog = $("entryDialog");
 const entryForm = $("entryForm");
 const generatorDialog = $("generatorDialog");
+const masterDialog = $("masterDialog");
 const syncDialog = $("syncDialog");
 const toast = $("toast");
 
@@ -244,6 +245,15 @@ async function persistVault() {
   state.vault.updatedAt = new Date().toISOString();
   const salt = current?.record?.salt ? base64ToBytes(current.record.salt) : null;
   const record = await encryptVault(state.vault, state.masterKey, salt);
+  setAccountRecord(state.accountId, record);
+}
+
+async function persistVaultWithNewMaster(newMasterPassword) {
+  const salt = randomBytes(16);
+  const key = await deriveKey(newMasterPassword, salt);
+  state.vault.updatedAt = new Date().toISOString();
+  const record = await encryptVault(state.vault, key, salt);
+  state.masterKey = key;
   setAccountRecord(state.accountId, record);
 }
 
@@ -636,12 +646,54 @@ $("useGeneratedButton").addEventListener("click", async (event) => {
 
 $("authSyncButton").addEventListener("click", () => openSyncDialog("auth"));
 $("syncButton").addEventListener("click", () => openSyncDialog("vault"));
+$("changeMasterButton").addEventListener("click", () => {
+  $("currentMasterPassword").value = "";
+  $("newMasterPassword").value = "";
+  $("confirmMasterPassword").value = "";
+  $("masterHint").textContent = "Dopo il cambio, sincronizza su GitHub per aggiornare il vault remoto.";
+  masterDialog.showModal();
+});
 $("saveSyncSettingsButton").addEventListener("click", () => {
   saveSyncSettings(readSyncForm());
   $("syncHint").textContent = "Impostazioni GitHub salvate su questo dispositivo.";
 });
 $("downloadSyncButton").addEventListener("click", () => runSyncAction("download"));
 $("uploadSyncButton").addEventListener("click", () => runSyncAction("upload"));
+
+masterDialog.addEventListener("close", () => {
+  $("currentMasterPassword").value = "";
+  $("newMasterPassword").value = "";
+  $("confirmMasterPassword").value = "";
+});
+
+$("masterForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (event.submitter?.value === "cancel") {
+    masterDialog.close();
+    return;
+  }
+  const currentPassword = $("currentMasterPassword").value;
+  const newPassword = $("newMasterPassword").value;
+  const confirmPassword = $("confirmMasterPassword").value;
+  if (!state.accountId) return;
+  if (newPassword.length < 10) {
+    $("masterHint").textContent = "La nuova master password deve avere almeno 10 caratteri.";
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    $("masterHint").textContent = "La conferma non coincide con la nuova master password.";
+    return;
+  }
+  try {
+    const account = getAccount(state.accountId);
+    await decryptVault(account.record, currentPassword);
+    await persistVaultWithNewMaster(newPassword);
+    masterDialog.close();
+    showToast("Master password aggiornata. Ricordati di sincronizzare su GitHub.");
+  } catch {
+    $("masterHint").textContent = "Master password attuale non valida.";
+  }
+});
 
 entryForm.addEventListener("submit", async (event) => {
   event.preventDefault();

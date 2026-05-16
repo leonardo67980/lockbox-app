@@ -168,6 +168,7 @@
               <input id="importInput" type="file">
             </label>
             <button class="text-button" id="syncButton" type="button">Sync GitHub</button>
+            <button class="text-button" id="changeMasterButton" type="button">Cambia master</button>
             <button class="text-button danger-text" id="deleteAccountButton" type="button">Elimina account</button>
           </div>
           <label class="timeout-control">
@@ -278,6 +279,35 @@
         <menu>
           <button class="secondary-action" id="generateOnlyButton" type="button">Genera</button>
           <button class="primary-action" id="useGeneratedButton" value="default">Usa password</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="masterDialog">
+      <form method="dialog" class="dialog-card" id="masterForm">
+        <header>
+          <div>
+            <p class="eyebrow">Sicurezza</p>
+            <h2>Cambia master password</h2>
+          </div>
+          <button class="icon-button" value="cancel" formnovalidate aria-label="Chiudi" type="submit">X</button>
+        </header>
+        <label>
+          <span>Master password attuale</span>
+          <input id="currentMasterPassword" type="password" autocomplete="current-password">
+        </label>
+        <label>
+          <span>Nuova master password</span>
+          <input id="newMasterPassword" type="password" autocomplete="new-password" minlength="10">
+        </label>
+        <label>
+          <span>Conferma nuova master password</span>
+          <input id="confirmMasterPassword" type="password" autocomplete="new-password" minlength="10">
+        </label>
+        <p class="form-note" id="masterHint">Dopo il cambio, sincronizza su GitHub per aggiornare il vault remoto.</p>
+        <menu>
+          <button class="secondary-action" value="cancel" formnovalidate>Annulla</button>
+          <button class="primary-action" id="saveMasterButton" value="default">Aggiorna</button>
         </menu>
       </form>
     </dialog>

@@ -673,7 +673,7 @@ select:focus {
 
 .footer-actions {
   display: grid;
-  grid-template-columns: repeat(4, 164px);
+  grid-template-columns: repeat(5, 156px);
   gap: 10px;
   min-width: 0;
 }
@@ -683,7 +683,7 @@ select:focus {
 }
 
 .footer-actions .text-button {
-  width: 164px;
+  width: 156px;
   height: 54px;
   padding: 0 14px;
 }
